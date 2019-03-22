@@ -7,8 +7,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import java.io.IOException;
-
 @Slf4j
 public class EmbeddedJetty {
 
@@ -19,7 +17,7 @@ public class EmbeddedJetty {
         server.join();
     }
 
-    private ServletContextHandler getServletContextHandler() throws IOException {
+    private ServletContextHandler getServletContextHandler() {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.register(AppConfig.class);
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
