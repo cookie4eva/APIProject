@@ -1,7 +1,9 @@
 package greeting.controller;
 
 import api.dto.*;
+import com.google.common.collect.Lists;
 import greeting.service.GreetingCardsService;
+import greeting.service.UserGreetingCards;
 import greeting.service.entity.GreetingCard;
 import greeting.service.entity.GreetingCardTemplate;
 import lombok.RequiredArgsConstructor;
@@ -35,17 +37,22 @@ public class GreetingCardsController {
     }
 
     @GetMapping(value = "greetingcard/cards",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AllCardsDTO> getAllCards()
+    public ResponseEntity<AllCardsDTO> getAllCards(@RequestHeader("X_USER_NAME") String user)
     {
         AllCardsDTO all = new AllCardsDTO();
         all.setGreetingCardDTOList(service.getAllCards().stream()
+                .filter(cards -> cards.getUser().equals(user))
+                .findFirst()
+                .map(UserGreetingCards::getGreetingCard)
+                .get().stream()
                 .map(mapper::toGreetingCardDto)
                 .collect(Collectors.toList()));
         return ResponseEntity.ok(all);
     }
 
     @PutMapping(value = "greetingcard/{name}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GreetingCardTemplateDTO> addNewTemplate( @Valid @RequestBody GreetingCardTemplateDTO templateDTO,
+    public ResponseEntity<GreetingCardTemplateDTO> addNewTemplate(
+                                                                  @Valid @RequestBody GreetingCardTemplateDTO templateDTO,
                                                                   @PathVariable String name) {
         Optional<GreetingCardTemplate> cardTemplate = service.addNewTemplate(mapper.fromTemplateDTO(templateDTO, name));
         if(!cardTemplate.isPresent()) {
@@ -60,8 +67,9 @@ public class GreetingCardsController {
     }
 
     @PostMapping(value = "greetingcard/",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GreetingCardDTO> addNewGreetingCard(@Valid @RequestBody GreetingCardTemplateOperationDTO opDTO) {
-        Optional<GreetingCard> greetingCard = service.addNewGreetingCard(mapper.fromOpertaionDTO(opDTO));
+    public ResponseEntity<GreetingCardDTO> addNewGreetingCard(@RequestHeader("X_USER_NAME") String user,
+                                                              @Valid @RequestBody GreetingCardTemplateOperationDTO opDTO) {
+        Optional<GreetingCard> greetingCard = service.addNewGreetingCard(mapper.fromOpertaionDTO(opDTO),user);
         if(!greetingCard.isPresent()){
             String warn = "Error adding new greeting card";
             log.warn(warn);

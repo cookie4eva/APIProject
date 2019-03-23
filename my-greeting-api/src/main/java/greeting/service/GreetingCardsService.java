@@ -51,8 +51,7 @@ public class GreetingCardsService {
         return template;
     }
 
-    public Optional<GreetingCard> addNewGreetingCard(GreetingCard greetingCard) {
-        String user = greetingCard.getFrom();
+    public Optional<GreetingCard> addNewGreetingCard(GreetingCard greetingCard, String user) {
         if(!usersRepository.exists(user))
         {
             usersRepository.add(user,new User());
@@ -79,10 +78,16 @@ public class GreetingCardsService {
         return Optional.of(greetingCard);
     }
 
-    public List<GreetingCard> getAllCards() {
-        ArrayList<GreetingCard> all = Lists.newArrayList();
-        cardsRepository.getAll().values()
-                .forEach(all::addAll);
-        return all;
+    public List<UserGreetingCards> getAllCards() {
+        return cardsRepository.getAll().entrySet().stream()
+                .map(this::getUserGreetingCards)
+                .collect(Collectors.toList());
+    }
+
+    private UserGreetingCards getUserGreetingCards(Map.Entry<String, List<GreetingCard>> e) {
+        UserGreetingCards userGreetingCards = new UserGreetingCards();
+        userGreetingCards.setGreetingCard(e.getValue());
+        userGreetingCards.setUser(e.getKey());
+        return userGreetingCards;
     }
 }

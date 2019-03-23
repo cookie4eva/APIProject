@@ -1,6 +1,5 @@
 package greeting.service.entity;
 
-import greeting.controller.GreetingCardsController;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
