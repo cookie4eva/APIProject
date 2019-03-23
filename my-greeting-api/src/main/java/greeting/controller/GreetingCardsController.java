@@ -49,6 +49,7 @@ public class GreetingCardsController {
         if(!service.addNewTemplate(mapper.fromTemplateDTO(templateDTO,name))) {
             throw new GreetingException("Error adding new template");
         }
+        templateDTO.setName(name);
         return templateDTO;
     }
 

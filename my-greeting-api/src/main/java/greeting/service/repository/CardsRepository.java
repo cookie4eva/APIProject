@@ -1,6 +1,7 @@
 package greeting.service.repository;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import greeting.service.entity.GreetingCard;
 import org.springframework.stereotype.Service;
 
@@ -10,9 +11,9 @@ import java.util.Map;
 
 @Service
 public class CardsRepository{
-    private Map<String, List<GreetingCard>> cards;
+    private Map<String, List<GreetingCard>> cards  = Maps.newHashMap();
 
-    public void put(String user, ArrayList<GreetingCard> compeleteList) {
+    public void put(String user,List<GreetingCard> compeleteList) {
         cards.put(user,compeleteList);
     }
 
