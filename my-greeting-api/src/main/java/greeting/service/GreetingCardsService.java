@@ -8,6 +8,7 @@ import greeting.service.repository.CardsRepository;
 import greeting.service.repository.TemplateRepository;
 import greeting.service.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GreetingCardsService {
 
+    private static final Logger log = Logger.getLogger(GreetingCardsService.class);
     private final TemplateRepository templateRepository;
     private final UsersRepository usersRepository;
     private final CardsRepository cardsRepository;
@@ -28,12 +30,17 @@ public class GreetingCardsService {
                 .collect(Collectors.toList());
     }
 
-    public boolean addNewTemplate(GreetingCardTemplate template)
+    public Optional<GreetingCardTemplate> addNewTemplate(GreetingCardTemplate template)
     {
         if(templateRepository.existsByName(template.getName())){
-            return false;
+            log.warn("Attempted to add an already existing template");
+            return Optional.empty();
         }
-        return templateRepository.add(template.getName(),template.getTemplate());
+        if(!templateRepository.add(template.getName(),template.getTemplate())) {
+            log.warn("Failed to add new template to repository");
+            return Optional.empty();
+        }
+        return Optional.of(template);
     }
 
 
@@ -54,15 +61,21 @@ public class GreetingCardsService {
         Optional<String> templateName = Optional.ofNullable(greetingCard.getContent().getTemplate().getName());
         if(!templateName.isPresent())
         {
+            log.warn("Template name was not given");
             return Optional.empty();
         }
         Optional<String> template = templateRepository.getByName(templateName.get());
         if(!template.isPresent())
         {
+            log.warn("Couldn't find template for greeting card");
             return Optional.empty();
         }
         greetingCard.getContent().getTemplate().setTemplate(template.get());
-        cardsRepository.addByUser(user,greetingCard);
+        if(!cardsRepository.addByUser(user,greetingCard))
+        {
+            log.warn("Couldn't add new greeting card");
+            return Optional.empty();
+        }
         return Optional.of(greetingCard);
     }
 

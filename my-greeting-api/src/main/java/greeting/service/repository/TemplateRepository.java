@@ -33,6 +33,6 @@ public class TemplateRepository{
     }
 
     public Optional<String> getByName(String templateName) {
-        return Optional.of(templates.get(templateName));
+        return Optional.ofNullable(templates.get(templateName));
     }
 }
