@@ -10,10 +10,7 @@ import greeting.service.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,14 +44,26 @@ public class GreetingCardsService {
         return template;
     }
 
-    public boolean addNewGreetingCard(GreetingCard greetingCard) {
+    public Optional<GreetingCard> addNewGreetingCard(GreetingCard greetingCard) {
         String user = greetingCard.getFrom();
         if(!usersRepository.exists(user))
         {
             usersRepository.add(user,new User());
             cardsRepository.put(user, Lists.newArrayList());
         }
-        return cardsRepository.addByUser(user,greetingCard);
+        Optional<String> templateName = Optional.ofNullable(greetingCard.getContent().getTemplate().getName());
+        if(!templateName.isPresent())
+        {
+            return Optional.empty();
+        }
+        Optional<String> template = templateRepository.getByName(templateName.get());
+        if(!template.isPresent())
+        {
+            return Optional.empty();
+        }
+        greetingCard.getContent().getTemplate().setTemplate(template.get());
+        cardsRepository.addByUser(user,greetingCard);
+        return Optional.of(greetingCard);
     }
 
     public List<GreetingCard> getAllCards() {

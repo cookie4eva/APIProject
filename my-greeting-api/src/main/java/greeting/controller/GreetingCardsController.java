@@ -1,15 +1,14 @@
 package greeting.controller;
 
-import api.dto.AllCardsDTO;
-import api.dto.AllGCTemplatesDTO;
-import api.dto.GreetingCardTemplateDTO;
-import api.dto.GreetingCardTemplateOperationDTO;
+import api.dto.*;
 import greeting.service.GreetingCardsService;
+import greeting.service.entity.GreetingCard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -55,11 +54,12 @@ public class GreetingCardsController {
 
     @PostMapping(value = "greetingcard/",produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
-    public GreetingCardTemplateOperationDTO addNewGreetingCard(@RequestBody GreetingCardTemplateOperationDTO opDTO) {
-        if(!service.addNewGreetingCard(mapper.fromOpertaionDTO(opDTO))){
+    public GreetingCardDTO addNewGreetingCard(@RequestBody GreetingCardTemplateOperationDTO opDTO) {
+        Optional<GreetingCard> greetingCard = service.addNewGreetingCard(mapper.fromOpertaionDTO(opDTO));
+        if(!greetingCard.isPresent()){
             throw new GreetingException("Error adding new greeting card");
         }
-        return opDTO;
+        return mapper.toGreetingCardDto(greetingCard.get());
     }
 
     @ExceptionHandler(Exception.class)

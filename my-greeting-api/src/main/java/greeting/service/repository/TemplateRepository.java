@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class TemplateRepository{
@@ -29,5 +30,9 @@ public class TemplateRepository{
 
     public boolean add(String name, String template) {
         return templates.put(name,template) == null;
+    }
+
+    public Optional<String> getByName(String templateName) {
+        return Optional.of(templates.get(templateName));
     }
 }
